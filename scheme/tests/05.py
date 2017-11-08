@@ -8,24 +8,20 @@ test = {
           'code': r"""
           >>> expr = read_line('(+ 2 2)')
           >>> scheme_eval(expr, create_global_frame()) # Type SchemeError if you think this errors
-          8ad686581488b3cc40d870a8db32810e
-          # locked
+          4
           >>> expr = read_line('(+ (+ 2 2) (+ 1 3) (* 1 4))')
           >>> scheme_eval(expr, create_global_frame()) # Type SchemeError if you think this errors
-          73497b29043a0b60bd5a60e27486029c
-          # locked
+          12
           >>> expr = read_line('(yolo)')
           >>> scheme_eval(expr, create_global_frame()) # Type SchemeError if you think this errors
-          87c30138f7979b4f5a454aacfb191b98
-          # locked
+          SchemeError
           >>> expr = read_line('(+ (+ 2 2) (+ 1 3) (* 1 4))')
           >>> proc = scheme_eval(expr.first, create_global_frame())
           >>> proc.eval_call(expr.second, create_global_frame()) # Type SchemeError if you think this errors
-          73497b29043a0b60bd5a60e27486029c
-          # locked
+          12
           """,
           'hidden': False,
-          'locked': True
+          'locked': False
         }
       ],
       'scored': True,
@@ -41,20 +37,16 @@ test = {
         {
           'code': r"""
           scm> (+ 2 3) ; Type SchemeError if you think this errors
-          19a0c723c8c2fa9e2860916af61035e6
-          # locked
+          5
           scm> (* (+ 3 2) (+ 1 7)) ; Type SchemeError if you think this errors
-          562254a256c6f9707c441984b0801c9d
-          # locked
+          40
           scm> (1 2) ; Type SchemeError if you think this errors
-          87c30138f7979b4f5a454aacfb191b98
-          # locked
+          SchemeError
           scm> (1 (print 0)) ; check_procedure should be called before operands are evaluated
-          87c30138f7979b4f5a454aacfb191b98
-          # locked
+          SchemeError
           """,
           'hidden': False,
-          'locked': True
+          'locked': False
         },
         {
           'code': r"""

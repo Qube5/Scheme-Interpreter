@@ -110,15 +110,15 @@ def scheme_read(src):
     val = src.remove_front() # Get the first token
     if val == 'nil':
         # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
+        return nil
         # END PROBLEM 1
     elif val == '(':
         # BEGIN PROBLEM 1
-        "*** YOUR CODE HERE ***"
+        return read_tail(src)
         # END PROBLEM 1
     elif val == "'":
         # BEGIN PROBLEM 7
-        "*** YOUR CODE HERE ***"
+        return Pair('quote', Pair(scheme_read(src), nil))
         # END PROBLEM 7
     elif val not in DELIMITERS:
         return val
@@ -137,21 +137,30 @@ def read_tail(src):
     """
     try:
         if src.current() is None:
-            raise SyntaxError('unexpected end of file')
+            raise SyntaxError('1 unexpected end of file')
         elif src.current() == ')':
             # BEGIN PROBLEM 1
-            "*** YOUR CODE HERE ***"
+            src.remove_front()
+            return nil
             # END PROBLEM 1
         elif src.current() == '.':
             # BEGIN PROBLEM 2
-            "*** YOUR CODE HERE ***"
+            src.remove_front()
+            temp = scheme_read(src)
+            if src.current() is not ')':
+                raise SyntaxError
+            read_tail(src)
+            return temp
             # END PROBLEM 2
         else:
             # BEGIN PROBLEM 1
-            "*** YOUR CODE HERE ***"
+            temp = scheme_read(src)
+            if src.current() is None:
+                raise SyntaxError
+            return Pair(temp, read_tail(src))
             # END PROBLEM 1
     except EOFError:
-        raise SyntaxError('unexpected end of file')
+        raise SyntaxError('2 unexpected end of file')
 
 # Convenience methods
 
