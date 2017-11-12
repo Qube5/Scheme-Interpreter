@@ -17,6 +17,80 @@
 
 ;;; 1.1.1
 
+(define cube (lambda (x) (* x x x))) ; See Section 1.3.2
+;expect cube
+
+(cube 21)
+; expect 9261
+
+(cube (+ 2 5))
+; expect 343
+
+(cube (cube 3))
+; expect 19683
+
+(define (sum-of-cubes x y)
+  (+ (cube x) (cube y)))
+; expect sum-of-cubes
+(sum-of-cubes 3 4)
+; expect 91
+
+(define (f a)
+  (sum-of-cubes (+ a 1) (* a 2)))
+(f 5)
+; expect 1216
+
+(define (square x) (* x x))
+; expect square
+
+(define (diff-of-squares x y)
+  (- (square x) (square y)))
+; expect diff-of-squares
+(diff-of-squares 4 3)
+; expect 7
+
+(define (f a)
+  (diff-of-squares (+ a 1) (* a 2)))
+(f 5)
+; expect -64
+
+(define (outer-func x y)
+  (define (inner z x)
+    (+ x (* y 2) (* z 3)))
+    inner)
+; expect outer-func
+
+((outer-func 1 2) 1 10)
+; expect 17
+
+((outer-func 3 5) 2 9)
+; expect 25
+
+(define f (mu (x) (+ x y)))
+; expect f
+
+(define g (lambda (x y) (f (+ x x))))
+; expect g
+
+(g 3 7)
+; expect 13
+
+(define x 3)
+; expect x
+(define z (mu (w) (* w x)))
+; expect z
+(z 4)
+; expect 12
+(define k (mu (i) (z (/ i 2))))
+; expect k
+(k 42)
+; expect 63
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Default tests. ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 10
 ; expect 10
 
@@ -58,8 +132,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Move the following (exit) line to run additional tests. ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(exit)
-
 
 ;;; 1.1.2
 
@@ -607,7 +679,6 @@ one-through-four
 (sum 1001 0)
 ; expect 501501
 
-(exit)
 
 ; call/cc primitive procedure tests
 
@@ -641,8 +712,6 @@ one-through-four
 
 (call/cc (lambda (cont) (hailstone 100 cont)))
 ; expect ()
-
-(exit)
 
 ; macro tests
 
