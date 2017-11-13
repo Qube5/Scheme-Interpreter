@@ -216,7 +216,21 @@ class MacroProcedure(LambdaProcedure):
         actual-parameter expressions and ENV as the environment in which the
         resulting expanded expression is to be evaluated."""
         # BEGIN Problem 21
-        "*** YOUR CODE HERE ***"
+        formals = self.formals
+        vals = operands
+
+        if len(formals) != len(vals):
+            raise SchemeError
+        form = formals
+        val = vals
+        while form != nil:
+            env.define(form.first, val.first)
+            form = form.second
+            val = val.second
+
+        macro = scheme_eval(self.body.first, env)
+        #!!!!!CHANGE TO COMPLETE_EVAL IF FINISH TAIL RECURSION
+        return scheme_eval(macro, env)
         # END Problem 21
 
 def add_primitives(frame, funcs_and_names):
@@ -357,7 +371,15 @@ def make_let_frame(bindings, env):
 def do_define_macro(expressions, env):
     """Evaluate a define-macro form."""
     # BEGIN Problem 21
-    "*** YOUR CODE HERE ***"
+    check_form(expressions,2,2)
+    if not isinstance(expressions.first, Pair):
+        raise SchemeError
+    check_formals(expressions.first)
+    name = expressions.first.first
+    formals = expressions.first.second
+    body = expressions.second
+    env.bindings[name] = MacroProcedure(formals, body, env)
+    return name
     # END Problem 21
 
 
