@@ -382,7 +382,6 @@ def do_define_macro(expressions, env):
     return name
     # END Problem 21
 
-
 SPECIAL_FORMS = {
     'and': do_and_form,
     'begin': do_begin_form,
@@ -541,6 +540,7 @@ def scheme_optimized_eval(expr, env, tail=False):
     """Evaluate Scheme expression EXPR in environment ENV. If TAIL, returns an
     Thunk object containing an expression for further evaluation."""
     # Evaluate atoms
+
     if scheme_symbolp(expr):
         return env.lookup(expr)
     elif self_evaluating(expr):
@@ -549,8 +549,14 @@ def scheme_optimized_eval(expr, env, tail=False):
     if tail:
         # BEGIN PROBLEM 20
         "*** YOUR CODE HERE *** return a thunk object"
-        print("tail true")
-        return Thunk(expr, env)
+        print("Tail true!", expr)
+        a = scheme_eval(expr.first, env)
+        print(a.formals,a.body,a.env)
+        # print(scheme_eval(a.body,a.env),'hi')
+        # print(, 'hi')
+        b = Pair(a, expr.second)
+        print(b)
+        return Thunk(b, env)
         # END PROBLEM 20
     else:
         result = Thunk(expr, env)
@@ -567,14 +573,18 @@ def scheme_optimized_eval(expr, env, tail=False):
             # BEGIN PROBLEM 20
             "*** YOUR CODE HERE ***"
             "***if tail context, tail recursion true***"
-            print(expr)
+            # print(len(expr))
+            # if isinstance(env.lookup(expr.first), UserDefinedProcedure):
             if expr.first == "sum":
-                print('test')
-                operate = scheme_eval(expr.first, env, True)
+                print('In Tail Context')
+                print(expr, expr.first)
+                operate = scheme_eval(expr, env, True)
+                print("op", operate.expr)
+                result = operate
             else:
                 operate = scheme_eval(expr.first, env)
-            check_procedure(operate)
-            return operate.eval_call(expr.second, env)
+                check_procedure(operate)
+                return operate.eval_call(expr.second, env)
             # END PROBLEM 20
     return result
 
