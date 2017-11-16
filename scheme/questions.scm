@@ -6,7 +6,10 @@
 ; Some utility functions that you may find useful to implement.
 
 (define (cons-all first rests)
-  (map (lambda (x) (cons first x)) rests)
+  (if (null? rests)
+    (cons first nil)
+    (map (lambda (list) (cons first list)) rests)
+  )
 )
 
 (define (zip pairs)
@@ -21,23 +24,16 @@
 
 (define (enumerate s)
   ; BEGIN PROBLEM 17
-  (define func
-    (lambda (index list)
-      (cond
-        ((eq? list nil) nil)
-        (else
-          (cons
-            (cons
-              index
-              (cons (car list) nil)
-            )
-            (func (+ index 1) (cdr list))
-          )
-        )
-      )
+  (define (number n s)
+    (if (null? (cdr s) )
+      (cons (cons n (cons (car s) nil)) nil)
+      (append (cons (cons n (cons (car s) nil)) nil) (number (+ n 1) (cdr s)))
     )
   )
-  (func 0 s)
+  (if (null? s)
+    nil
+    (number 0 s)
+  )
 )
 ; END PROBLEM 17
 

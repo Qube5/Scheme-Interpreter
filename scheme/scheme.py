@@ -50,13 +50,13 @@ def eval_all(expressions, env):
     """Evaluate each expression in the Scheme list EXPRESSIONS in
     environment ENV and return the value of the last."""
     # BEGIN PROBLEM 8
-    ret = None
-    curr = expressions
-    while curr != nil:
-        exp = curr.first
-        ret = scheme_eval(exp, env)
-        curr = curr.second
-    return ret
+    if expressions is not nil:
+        while expressions.second is not nil:
+            scheme_eval(expressions.first, env)
+            expressions = expressions.second
+        return scheme_eval(expressions.first, env, True)
+    else:
+        return None
     # END PROBLEM 8
 
 ################
@@ -108,12 +108,11 @@ class Frame:
         # BEGIN PROBLEM 11
         if len(formals) != len(vals):
             raise SchemeError
-        form = formals
-        val = vals
-        while form != nil:
-            child.define(form.first, val.first)
-            form = form.second
-            val = val.second
+
+        while formals is not nil:
+            child.define(formals.first, vals.first)
+            formals = formals.second
+            vals = vals.second
         # END PROBLEM 11
         return child
 
@@ -128,9 +127,7 @@ class Procedure:
         unevaluated actual-parameter expressions and ENV as the environment
         in which the operands are to be evaluated."""
         # BEGIN PROBLEM 5
-        def eval_helper(arg):
-            return scheme_eval(arg, env)
-        opers = operands.map(eval_helper)
+        opers = operands.map(lambda arg: scheme_eval(arg,env))
         return scheme_apply(self, opers, env)
         # END PROBLEM 5
 
@@ -229,8 +226,7 @@ class MacroProcedure(LambdaProcedure):
             val = val.second
 
         macro = scheme_eval(self.body.first, env)
-        #!!!!!CHANGE TO COMPLETE_EVAL IF FINISH TAIL RECURSION
-        return scheme_eval(macro, env)
+        return scheme_eval(macro, env, True)
         # END Problem 21
 
 def add_primitives(frame, funcs_and_names):
@@ -293,21 +289,20 @@ def do_if_form(expressions, env):
     """Evaluate an if form."""
     check_form(expressions, 2, 3)
     if scheme_truep(scheme_eval(expressions.first, env)):
-        return scheme_eval(expressions.second.first, env)
+        return scheme_eval(expressions.second.first, env, True)
     elif len(expressions) == 3:
-        return scheme_eval(expressions.second.second.first, env)
+        return scheme_eval(expressions.second.second.first, env, True)
 
 def do_and_form(expressions, env):
     """Evaluate a (short-circuited) and form."""
     # BEGIN PROBLEM 13
     if len(expressions) == 0:
         return True
-    curr = expressions
-    while curr.second != nil:
-        if scheme_falsep(scheme_eval(curr.first, env)):
-            return scheme_eval(curr.first, env)
-        curr = curr.second
-    return scheme_eval(curr.first, env)
+    while expressions.second != nil:
+        if scheme_falsep(scheme_eval(expressions.first, env)):
+            return scheme_eval(expressions.first, env)
+        expressions = expressions.second
+    return scheme_eval(expressions.first, env, True)
     # END PROBLEM 13
 
 def do_or_form(expressions, env):
@@ -315,12 +310,11 @@ def do_or_form(expressions, env):
     # BEGIN PROBLEM 13
     if len(expressions) == 0:
         return False
-    curr = expressions
-    while curr.second != nil:
-        if scheme_truep(scheme_eval(curr.first, env)):
-            return scheme_eval(curr.first, env)
-        curr = curr.second
-    return scheme_eval(curr.first, env)
+    while expressions.second != nil:
+        if scheme_truep(scheme_eval(expressions.first, env)):
+            return scheme_eval(expressions.first, env)
+        expressions = expressions.second
+    return scheme_eval(expressions.first, env, True)
     # END PROBLEM 13
 
 def do_cond_form(expressions, env):
@@ -336,8 +330,7 @@ def do_cond_form(expressions, env):
             test = scheme_eval(clause.first, env)
         if scheme_truep(test):
             # BEGIN PROBLEM 14
-            "*** YOUR CODE HERE ***"
-            if clause.second == nil:
+            if clause.second is nil:
                 return test
             return eval_all(clause.second, env)
             # END PROBLEM 14
@@ -358,13 +351,12 @@ def make_let_frame(bindings, env):
         raise SchemeError('bad bindings list in let form')
     # BEGIN PROBLEM 15
 
-    let = env.make_child_frame(nil, nil)
-    curr = bindings
-    while curr != nil:
-        check_form(curr.first, 1, 2)
-        check_formals(Pair(curr.first.first, nil))
-        let.define(curr.first.first, scheme_eval(curr.first.second.first, env))
-        curr = curr.second
+    let = Frame(env)
+    while bindings is not nil:
+        check_form(bindings.first, 2, 2)
+        check_formals(Pair(bindings.first.first, nil))
+        let.define(bindings.first.first, scheme_eval(bindings.first.second.first, env))
+        bindings = bindings.second
     return let
     # END PROBLEM 15
 
@@ -548,15 +540,7 @@ def scheme_optimized_eval(expr, env, tail=False):
 
     if tail:
         # BEGIN PROBLEM 20
-        "*** YOUR CODE HERE *** return a thunk object"
-        print("Tail true!", expr)
-        a = scheme_eval(expr.first, env)
-        print(a.formals,a.body,a.env)
-        # print(scheme_eval(a.body,a.env),'hi')
-        # print(, 'hi')
-        b = Pair(a, expr.second)
-        print(b)
-        return Thunk(b, env)
+        return Thunk(expr, env)
         # END PROBLEM 20
     else:
         result = Thunk(expr, env)
@@ -572,26 +556,16 @@ def scheme_optimized_eval(expr, env, tail=False):
         else:
             # BEGIN PROBLEM 20
             "*** YOUR CODE HERE ***"
-            "***if tail context, tail recursion true***"
-            # print(len(expr))
-            # if isinstance(env.lookup(expr.first), UserDefinedProcedure):
-            if expr.first == "sum":
-                print('In Tail Context')
-                print(expr, expr.first)
-                operate = scheme_eval(expr, env, True)
-                print("op", operate.expr)
-                result = operate
-            else:
-                operate = scheme_eval(expr.first, env)
-                check_procedure(operate)
-                return operate.eval_call(expr.second, env)
+            operate = scheme_eval(first, env)
+            check_procedure(operate)
+            result = operate.eval_call(rest, env)
             # END PROBLEM 20
     return result
 
 ################################################################
 # Uncomment the following line to apply tail call optimization #
 ################################################################
-# scheme_eval = scheme_optimized_eval
+scheme_eval = scheme_optimized_eval
 
 
 ####################
